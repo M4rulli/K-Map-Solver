@@ -123,7 +123,6 @@ export default function KMapApp() {
   const [lang, setLang] = useState<"it" | "en">(() =>
     navigator.language.startsWith("it") ? "it" : "en"
   );
-  const githubUrl = (import.meta as any).env?.VITE_GITHUB_URL as string | undefined;
 
   const [numVars, setNumVars] = useState(4);
   const [isSop, setIsSop] = useState(true);
@@ -228,10 +227,82 @@ export default function KMapApp() {
         <Card className="w-full max-w-5xl glass-panel overflow-hidden border border-border/50 shadow-2xl">
           <div className="h-1 bg-gradient-to-r from-primary to-accent" />
           <CardContent className="p-6">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-8 border-b pb-4">
-            <h1 className="text-3xl font-display font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {t.title}
+          {/* Header (mobile) */}
+          <div className="md:hidden mb-6 border-b pb-4">
+            {/* Title row */}
+            <div className="flex items-center justify-between gap-3">
+              <h1 className="text-2xl font-display font-extrabold tracking-tight text-foreground">
+                <span className="bg-gradient-to-r from-primary via-primary to-purple-500 bg-clip-text text-transparent drop-shadow-sm">
+                  {t.title}
+                </span>
+              </h1>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setLang((l) => (l === "en" ? "it" : "en"))}
+                className="rounded-full hover:bg-accent"
+                aria-label={lang === "it" ? "Cambia lingua" : "Change language"}
+              >
+                <Languages className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Controls */}
+            <div className="mt-4 grid grid-cols-1 gap-4">
+              <div className="flex flex-col items-start gap-2">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                  {lang === "it" ? "Numero variabili" : "Variables"}
+                </span>
+                <ToggleGroup
+                  type="single"
+                  value={numVars.toString()}
+                  onValueChange={(v: string) => v && setNumVars(parseInt(v, 10))}
+                  className="flex flex-wrap"
+                >
+                  {[2, 3, 4, 5].map((v) => (
+                    <ToggleGroupItem key={v} value={v.toString()} className="w-10">
+                      {v}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </div>
+
+              <div className="flex flex-col items-start gap-2">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                  {lang === "it" ? "Forma" : "Form"}
+                </span>
+                <ToggleGroup
+                  type="single"
+                  value={isSop ? "sop" : "pos"}
+                  onValueChange={(v: string) => {
+                    if (!v) return;
+                    const nextIsSop = v === "sop";
+                    if (result) {
+                      setResult(null);
+                      setMessageKey("modeChanged");
+                    } else {
+                      setMessageKey(null);
+                    }
+                    setIsSop(nextIsSop);
+                  }}
+                  className="flex"
+                >
+                  <ToggleGroupItem value="sop" className="px-3">
+                    {lang === "it" ? "FND" : "SOP"}
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="pos" className="px-3">
+                    {lang === "it" ? "FNC" : "POS"}
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+            </div>
+          </div>
+          {/* Header (desktop) */}
+          <div className="hidden md:flex justify-between items-center mb-8 border-b pb-4">
+            <h1 className="text-3xl font-display font-extrabold tracking-tight text-foreground">
+              <span className="bg-gradient-to-r from-primary via-primary to-purple-500 bg-clip-text text-transparent drop-shadow-sm">
+                {t.title}
+              </span>
             </h1>
 
             <div className="flex items-start gap-4">
@@ -410,7 +481,6 @@ export default function KMapApp() {
       <footer className="relative z-10 w-full mt-6 px-4 md:px-8 pb-4">
         <div className="max-w-5xl mx-auto">
           <div className="h-px w-full bg-border/70" />
-
           <div className="pt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-[11px] text-muted-foreground">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className="font-medium text-foreground/80">K-Map Solver</span>
@@ -419,26 +489,14 @@ export default function KMapApp() {
                 © {new Date().getFullYear()} {lang === "it" ? "Tutti i diritti riservati" : "All rights reserved"}
               </span>
               <span className="opacity-60">•</span>
-              {githubUrl ? (
-                <a
-                  href={githubUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline underline-offset-4 hover:text-foreground transition-colors"
-                >
-                  GitHub repo
-                </a>
-              ) : (
-                <span className="opacity-70">
-                  {lang === "it" ? "GitHub repo: <inserisci-link>" : "GitHub repo: <insert-link>"}
-                </span>
-              )}
-            </div>
-
-            <div className="opacity-80">
-              {lang === "it"
-                ? "Consiglio: usa la Tabella di verità per compilare velocemente."
-                : "Tip: use the Truth table for quick entry."}
+              <a
+                href="https://github.com/M4rulli/K-Map-Solver"
+                target="_blank"
+                rel="noreferrer"
+                className="underline underline-offset-4 hover:text-foreground transition-colors"
+              >
+                GitHub repo
+              </a>
             </div>
           </div>
         </div>

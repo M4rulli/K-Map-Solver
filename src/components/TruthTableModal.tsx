@@ -165,7 +165,7 @@ export function TruthTableModal({
                         </th>
                       ))}
                       <th className="px-3 py-2 text-xs tracking-widest text-muted-foreground text-center">
-                        {t.f}
+                        <MJ tex={t.f} />
                       </th>
                     </tr>
                   </thead>
@@ -226,15 +226,15 @@ export function TruthTableModal({
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-border/60 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <div className="p-6 border-t border-border/60 flex flex-row flex-wrap items-center justify-between gap-3">
             <button
               onClick={clear}
-              className="h-10 px-4 rounded-lg border border-border bg-background/50 hover:bg-muted transition"
+              className="h-10 px-3 text-sm rounded-lg border border-border bg-background/50 hover:bg-muted transition shrink-0"
             >
               {t.clear}
             </button>
 
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-3 justify-end shrink-0">
               <button
                 onClick={onClose}
                 className="h-10 px-4 rounded-lg border border-border bg-background/50 hover:bg-muted transition"
