@@ -4,11 +4,12 @@ import { Button } from "./components/ui/button";
 import { KmapGrid } from "./components/KmapGrid";
 import { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Download, Languages } from "lucide-react";
+import { Trash2, Download, Languages, HelpCircle } from "lucide-react";
 import { saveAs } from "file-saver";
 import { solveCustom } from "./lib/solver";
 
 import { TruthTableModal } from "./components/TruthTableModal";
+import { HelpModal } from "./components/HelpModal";
 
 // --- Types for local solver ---
 export type SolveInput = {
@@ -66,9 +67,7 @@ const translations = {
 const MathComponent = ({ tex }: { tex: string }) => {
   useEffect(() => {
     // expects MathJax loaded globally (optional)
-    // @ts-expect-error - window.MathJax may be injected globally
     if (window.MathJax) {
-      // @ts-expect-error
       window.MathJax.typesetPromise?.();
     }
   }, [tex]);
@@ -119,6 +118,45 @@ function buildMintermsFromGrid(grid: Record<number, string>) {
   return { minterms, dontCares };
 }
 
+function buildDecimalFormTex(
+  variables: number,
+  minterms: number[],
+  dontCares: number[],
+  isSop: boolean
+): string {
+  const total = Math.pow(2, variables);
+
+  const fmtList = (xs: number[]) => xs.join(", ");
+
+  const hasDC = dontCares.length > 0;
+
+  if (isSop) {
+    // SOP canonical decimal form: Σ_1(minterms) + Σ_d(dont cares)
+    if (minterms.length === 0) return "0";
+    if (minterms.length + dontCares.length === total) return "1";
+
+    const base = `\\Sigma_{1}\\left(${fmtList(minterms)}\\right)`;
+    const dc = hasDC ? ` + \\Sigma_{d}\\left(${fmtList(dontCares)}\\right)` : "";
+    return base + dc;
+  }
+
+  // POS canonical decimal form: Π_0(maxterms) · Π_d(dont cares)
+  // zeros are all indices not in minterms and not in dontCares
+  const mtSet = new Set(minterms);
+  const dcSet = new Set(dontCares);
+  const zeros: number[] = [];
+  for (let i = 0; i < total; i++) {
+    if (!mtSet.has(i) && !dcSet.has(i)) zeros.push(i);
+  }
+
+  if (zeros.length === 0) return "1";
+  if (zeros.length + dontCares.length === total) return "0";
+
+  const base = `\\Pi_{0}\\left(${fmtList(zeros)}\\right)`;
+  const dc = hasDC ? `\\,\\cdot\\,\\Pi_{d}\\left(${fmtList(dontCares)}\\right)` : "";
+  return base + dc;
+}
+
 export default function KMapApp() {
   const [lang, setLang] = useState<"it" | "en">(() =>
     navigator.language.startsWith("it") ? "it" : "en"
@@ -131,6 +169,7 @@ export default function KMapApp() {
   const [isSolving, setIsSolving] = useState(false);
   const [messageKey, setMessageKey] = useState<null | "solveFailed" | "modeChanged">(null);
   const [ttOpen, setTTOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const t = translations[lang];
   const messageText = messageKey
@@ -144,15 +183,19 @@ export default function KMapApp() {
   const solvedIsSop = result?.meta.isSop ?? isSop;
   const resultLabel = solvedIsSop
     ? lang === "it"
-      ? "Forma minimale in forma normale disgiuntiva (FND)"
-      : "Minimal form in Sum of Products (SOP)"
+      ? "Forma minimale in FND"
+      : "Minimal form in SOP"
     : lang === "it"
-      ? "Forma minimale in forma normale congiuntiva (FNC)"
-      : "Minimal form in Product of Sums (POS)";
+      ? "Forma minimale in FNC"
+      : "Minimal form in POS  ";
   const solveLocal: SolveFn = ({ variables, minterms, dontCares, isSop }) =>
     solveCustom(variables, minterms, dontCares, isSop);
 
   const gridSets = useMemo(() => buildMintermsFromGrid(grid), [grid]);
+  const decimalTex = useMemo(
+    () => buildDecimalFormTex(numVars, gridSets.minterms, gridSets.dontCares, solvedIsSop),
+    [numVars, gridSets.minterms, gridSets.dontCares, solvedIsSop]
+  );
 
   // toggle 0 -> 1 -> - -> 0
   const toggleCell = (idx: number) => {
@@ -236,15 +279,27 @@ export default function KMapApp() {
                   {t.title}
                 </span>
               </h1>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setLang((l) => (l === "en" ? "it" : "en"))}
-                className="rounded-full hover:bg-accent"
-                aria-label={lang === "it" ? "Cambia lingua" : "Change language"}
-              >
-                <Languages className="w-5 h-5" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setHelpOpen(true)}
+                  className="rounded-full hover:bg-accent"
+                  aria-label={lang === "it" ? "Aiuto" : "Help"}
+                >
+                  <HelpCircle className="w-5 h-5" />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setLang((l) => (l === "en" ? "it" : "en"))}
+                  className="rounded-full hover:bg-accent"
+                  aria-label={lang === "it" ? "Cambia lingua" : "Change language"}
+                >
+                  <Languages className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
 
             {/* Controls */}
@@ -305,19 +360,32 @@ export default function KMapApp() {
               </span>
             </h1>
 
-            <div className="flex items-start gap-4">
-              <div className="flex flex-col items-start gap-1">
-                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+            <div className="flex items-end gap-4">
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold opacity-0 select-none">
                   {lang === "it" ? "Lingua" : "Language"}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setLang((l) => (l === "en" ? "it" : "en"))}
-                  className="rounded-full hover:bg-accent"
-                >
-                  <Languages className="w-5 h-5" />
-                </Button>
+                <div className="flex h-10 items-center justify-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setHelpOpen(true)}
+                    className="rounded-full hover:bg-accent"
+                    aria-label={lang === "it" ? "Aiuto" : "Help"}
+                  >
+                    <HelpCircle className="w-5 h-5" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setLang((l) => (l === "en" ? "it" : "en"))}
+                    className="rounded-full hover:bg-accent"
+                    aria-label={lang === "it" ? "Cambia lingua" : "Change language"}
+                  >
+                    <Languages className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
 
               <div className="flex flex-col items-start gap-1">
@@ -328,6 +396,7 @@ export default function KMapApp() {
                   type="single"
                   value={numVars.toString()}
                   onValueChange={(v: string) => v && setNumVars(parseInt(v, 10))}
+                  className="h-10"
                 >
                   {[2, 3, 4, 5].map((v) => (
                     <ToggleGroupItem key={v} value={v.toString()} className="w-10">
@@ -356,6 +425,7 @@ export default function KMapApp() {
                     }
                     setIsSop(nextIsSop);
                   }}
+                  className="h-10"
                 >
                   <ToggleGroupItem value="sop" className="px-3">
                     {lang === "it" ? "FND" : "SOP"}
@@ -446,6 +516,13 @@ export default function KMapApp() {
                   className="w-full bg-muted/30 p-6 rounded-xl border border-primary/5 text-center"
                 >
                   <p className="text-sm uppercase tracking-widest text-muted-foreground mb-2 font-bold">
+                    {lang === "it" ? "Forma decimale (Σ/Π)" : "Decimal form (Σ/Π)"}
+                  </p>
+                  <div className="text-base md:text-lg font-mono text-foreground flex items-center justify-center gap-3 mb-4">
+                    <MathComponent tex={`f(\\mathbf{x}) = ${decimalTex}`} />
+                  </div>
+
+                  <p className="text-sm uppercase tracking-widest text-muted-foreground mb-2 font-bold">
                     {resultLabel}
                   </p>
                   <div className="text-base md:text-lg font-mono text-foreground flex items-center justify-center gap-3">
@@ -476,6 +553,11 @@ export default function KMapApp() {
           setResult(null);
           setMessageKey(null);
         }}
+      />
+      <HelpModal
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        lang={lang}
       />
 
       <footer className="relative z-10 w-full mt-6 px-4 md:px-8 pb-4">

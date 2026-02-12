@@ -7,7 +7,6 @@ import { useEffect } from "react";
 function MJ({ tex, className }: { tex: string; className?: string }) {
   useEffect(() => {
     // MathJax is loaded globally (e.g., via index.html). If not present, this is a no-op.
-    // @ts-expect-error - MathJax is a global injected by a script tag
     window.MathJax?.typesetPromise?.();
   }, [tex]);
 

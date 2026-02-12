@@ -11,14 +11,12 @@ import {
 
 function MJ({ tex, className }: { tex: string; className?: string }) {
   useEffect(() => {
-    // @ts-expect-error MathJax injected globally
-    const mj = window.MathJax;
-    if (!mj?.typesetPromise) return;
     // Defer typeset to the next frame so newly-mounted DOM is present
     requestAnimationFrame(() => {
-      mj.typesetPromise();
+      window.MathJax?.typesetPromise?.();
     });
   }, [tex]);
+
   return <span className={className}>{`\\(${tex}\\)`}</span>;
 }
 
@@ -64,11 +62,8 @@ export function TruthTableModal({
   // Ensure MathJax typesets when the modal is opened
   useEffect(() => {
     if (!open) return;
-    // @ts-expect-error MathJax injected globally
-    const mj = window.MathJax;
-    if (!mj?.typesetPromise) return;
     requestAnimationFrame(() => {
-      mj.typesetPromise();
+      window.MathJax?.typesetPromise?.();
     });
   }, [open]);
 
