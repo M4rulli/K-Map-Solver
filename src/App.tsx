@@ -256,7 +256,7 @@ export default function KMapApp() {
                 <ToggleGroup
                   type="single"
                   value={numVars.toString()}
-                  onValueChange={(v) => v && setNumVars(parseInt(v, 10))}
+                  onValueChange={(v: string) => v && setNumVars(parseInt(v, 10))}
                 >
                   {[2, 3, 4, 5].map((v) => (
                     <ToggleGroupItem key={v} value={v.toString()} className="w-10">
@@ -273,7 +273,7 @@ export default function KMapApp() {
                 <ToggleGroup
                   type="single"
                   value={isSop ? "sop" : "pos"}
-                  onValueChange={(v) => {
+                  onValueChange={(v: string) => {
                     if (!v) return;
                     const nextIsSop = v === "sop";
                     // If a result is currently shown, invalidate it to avoid mismatched labeling.

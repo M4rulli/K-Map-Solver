@@ -39,9 +39,6 @@ export function KmapCell({ value, mintermIndex, onClick, groups = [], className 
     if (activeGroups.length === 0) return {};
     if (activeGroups.length === 1) return undefined; // Let Tailwind handle single class
     
-    // Multiple groups: stripes
-    const colors = activeGroups.map(g => g.color.bg.replace('bg-', '').replace('/20', '')); // Rough parsing, better to use vars
-    // Fallback to simple alpha blending visual
     return {}; 
   }, [activeGroups]);
 

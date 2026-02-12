@@ -46,25 +46,6 @@ export function getMintermIndex(
   // 4 vars (A, B, C, D): Row=AB, Col=CD
   // 5 vars (A, B, C, D, E): Row=AB, Col=CD, Map=E
   
-  const binaryString = rowGray + colGray + (mapIndex > 0 ? "1" : mapIndex === 0 && arguments.length > 2 ? "0" : "");
-  // For < 5 vars, mapIndex isn't used in the binary string appended
-  // But wait, standard ordering:
-  // 5 vars usually A,B,C,D,E. 
-  // If we split into two 4-variable maps (A,B,C,D), the 5th variable is usually the MSB or LSB.
-  // Let's assume A is MSB. 
-  // If 5 vars: Map 0 is A=0, Map 1 is A=1. The grid is B,C,D,E.
-  // OR: Map 0 is E=0, Map 1 is E=1. Let's stick to the prompt implication or standard.
-  // Standard K-map for 5 vars: Two 4-variable maps. One for A=0, one for A=1.
-  // Let's implement A as the MSB differentiating the two maps.
-  
-  // Correction for 5 vars:
-  // Map 0 (Left): A=0. Row=BC, Col=DE. 
-  // Map 1 (Right): A=1. Row=BC, Col=DE.
-  
-  // Wait, commonly for 4 vars it's AB (rows) CD (cols).
-  // So for 5 vars, let's say A=0/1 selects the map. 
-  // Then inside the map: Row=BC, Col=DE.
-  
   return parseInt(
     (arguments.length > 2 && mapIndex !== undefined ? (mapIndex === 1 ? "1" : "0") : "") + rowGray + colGray, 
     2
