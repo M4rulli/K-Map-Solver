@@ -1,73 +1,88 @@
-# React + TypeScript + Vite
+# 🧩 K-Map Solver
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  <b>Modern Karnaugh Map Solver with a fully client-side Quine–McCluskey engine</b><br/>
+  Built with React + Vite + TailwindCSS
+</p>
 
-Currently, two official plugins are available:
+<p align="center">
+  <img alt="License: GPL-3.0" src="https://img.shields.io/badge/License-GPLv3-blue.svg" />
+  <img alt="React" src="https://img.shields.io/badge/React-18+-61dafb?logo=react&logoColor=white" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5+-3178c6?logo=typescript&logoColor=white" />
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-7+-646cff?logo=vite&logoColor=white" />
+  <img alt="TailwindCSS" src="https://img.shields.io/badge/TailwindCSS-3+-38bdf8?logo=tailwindcss&logoColor=white" />
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## ✨ Overview
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**K-Map Solver** is a modern, interactive Karnaugh Map minimization tool built entirely in the browser.
 
-## Expanding the ESLint configuration
+It implements a full **Quine–McCluskey Boolean minimization engine**, without relying on external logic libraries or backend services.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+> 🧠 All computations are performed client-side.  
+> 🚫 No API calls. No server dependencies.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🚀 Features
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- 🔢 Support for **2 to 5 variables**
+- 🔄 Toggle between:
+  - **SOP (Sum of Products)**
+  - **POS (Product of Sums)**
+- 📊 Interactive Karnaugh Map UI
+- 🧾 Truth Table modal for fast input
+- 🧮 Mathematical rendering via **MathJax**
+- 🌍 English / Italian localization
+- 🧠 Custom Quine–McCluskey implementation
+
+---
+
+## 📦 Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/M4rulli/K-Map-Solver.git
+cd K-Map-Solver
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Install dependencies:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
+
+Start development server:
+
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+---
+
+## 🗺 Roadmap
+
+Planned improvements:
+
+- [ ] Logic gate circuit visualization (auto-generated)
+- [ ] Variable style customization (x₀, a, b, c…)
+- [ ] Improved Petrick’s method (exact minimization)
+- [ ] Export to Verilog / VHDL
+- [ ] Unit tests
+
+---
+
+## 📜 License
+
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
+
+See the [`LICENSE`](LICENSE) file for details.
