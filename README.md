@@ -75,8 +75,7 @@ Planned improvements:
 
 - [ ] Logic gate circuit visualization (auto-generated)
 - [ ] Variable style customization (x₀, a, b, c…)
-- [ ] Improved Petrick’s method (exact minimization)
-- [ ] Export to Verilog / VHDL
+- [ ] Export to Verilog / VHDL / JSON / Latex
 - [ ] Unit tests
 
 ---

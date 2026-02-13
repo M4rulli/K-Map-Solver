@@ -4,8 +4,7 @@ import { Button } from "./components/ui/button";
 import { KmapGrid } from "./components/KmapGrid";
 import { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Download, Languages, HelpCircle } from "lucide-react";
-import { saveAs } from "file-saver";
+import { Trash2, Languages, HelpCircle } from "lucide-react";
 import { solveCustom } from "./lib/solver";
 
 import { TruthTableModal } from "./components/TruthTableModal";
@@ -212,17 +211,6 @@ export default function KMapApp() {
     setMessageKey(null);
   };
 
-  const exportJson = () => {
-    const data = {
-      variables: numVars,
-      grid,
-      timestamp: new Date().toISOString(),
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json",
-    });
-    saveAs(blob, `kmap-${numVars}vars.json`);
-  };
 
   const solve = async () => {
     setIsSolving(true);
@@ -492,15 +480,6 @@ export default function KMapApp() {
               {lang === "it" ? "Tabella di verità" : "Truth table"}
             </Button>
 
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={exportJson}
-              className="min-w-[120px] transition-all duration-200 hover:bg-muted/60 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              {t.export}
-            </Button>
           </div>
 
             {messageText && (
@@ -513,19 +492,19 @@ export default function KMapApp() {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="w-full bg-muted/30 p-6 rounded-xl border border-primary/5 text-center"
+                  className="w-full bg-muted/30 p-4 md:p-6 rounded-xl border border-primary/5 overflow-x-auto"
                 >
                   <p className="text-sm uppercase tracking-widest text-muted-foreground mb-2 font-bold">
                     {lang === "it" ? "Forma decimale (Σ/Π)" : "Decimal form (Σ/Π)"}
                   </p>
-                  <div className="text-base md:text-lg font-mono text-foreground flex items-center justify-center gap-3 mb-4">
+                  <div className="text-sm md:text-lg font-mono text-foreground flex items-start justify-start gap-3 mb-4 min-w-max">
                     <MathComponent tex={`f(\\mathbf{x}) = ${decimalTex}`} />
                   </div>
 
                   <p className="text-sm uppercase tracking-widest text-muted-foreground mb-2 font-bold">
                     {resultLabel}
                   </p>
-                  <div className="text-base md:text-lg font-mono text-foreground flex items-center justify-center gap-3">
+                  <div className="text-sm md:text-lg font-mono text-foreground flex items-start justify-start gap-3 min-w-max">
                     <MathComponent
                       tex={`f(\\mathbf{x}) = ${formatExpressionForMathJax(result.expression)}`}
                     />
