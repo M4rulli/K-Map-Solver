@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Languages, HelpCircle } from "lucide-react";
 import { solveCustom } from "./lib/solver";
 
-import { TruthTableModal } from "./components/TruthTableModal";
 import { HelpModal } from "./components/HelpModal";
+import { LogicCircuitDiagram } from "./components/LogicCircuitDiagram";
+import { TruthTablePane } from "./components/TruthTablePane";
 
 // --- Types for local solver ---
 export type SolveInput = {
@@ -43,6 +44,8 @@ const translations = {
     dontCare: "Don't Care (-)",
     mapX4_0: "Map (x₄ = 0)",
     mapX4_1: "Map (x₄ = 1)",
+    kmapTab: "Karnaugh Map",
+    truthTab: "Truth Table",
     solving: "Solving...",
     solveFailed: "Solve failed",
   },
@@ -57,6 +60,8 @@ const translations = {
     dontCare: "Indifferente (-)",
     mapX4_0: "Mappa (x₄ = 0)",
     mapX4_1: "Mappa (x₄ = 1)",
+    kmapTab: "Mappa di Karnaugh",
+    truthTab: "Tabella di verità",
     solving: "Sto risolvendo...",
     solveFailed: "Errore durante la risoluzione",
   },
@@ -78,10 +83,6 @@ function formatExpressionForMathJax(expr: string): string {
   const s = (expr || "").trim();
   if (s === "" || s === "0" || s === "1") return s;
 
-  // We currently emit SOP strings like: x_0'x_1 + x_3
-  // Tokenize per term and render products with thin spaces.
-  const terms = s.split(" + ");
-
   const toVar = (tok: string) => {
     // tok: x_12 or x_12'
     const m = tok.match(/^x_(\d+)(')?$/);
@@ -92,8 +93,23 @@ function formatExpressionForMathJax(expr: string): string {
     return neg ? `\\overline{${base}}` : base;
   };
 
+  // POS string: (x_0 + x_1')(x_2 + x_3)...
+  const factors = Array.from(s.matchAll(/\(([^()]*)\)/g));
+  if (factors.length > 0) {
+    const texFactors = factors.map((f) => {
+      const lits = f[1]
+        .split("+")
+        .map((v) => v.trim())
+        .filter(Boolean)
+        .map(toVar);
+      return `\\left(${lits.join(" \\; + \\; ")}\\right)`;
+    });
+    return texFactors.join("\\,");
+  }
+
+  // SOP string: x_0'x_1 + x_3
+  const terms = s.split(" + ");
   const texTerms = terms.map((term) => {
-    // Extract literals in a product term
     const lits = term.match(/x_\d+'?/g) || [];
     if (lits.length === 0) return term;
     return lits.map(toVar).join("\\, ");
@@ -167,7 +183,7 @@ export default function KMapApp() {
   const [result, setResult] = useState<SolveOutput | null>(null);
   const [isSolving, setIsSolving] = useState(false);
   const [messageKey, setMessageKey] = useState<null | "solveFailed" | "modeChanged">(null);
-  const [ttOpen, setTTOpen] = useState(false);
+  const [activePane, setActivePane] = useState<"kmap" | "truth">("kmap");
   const [helpOpen, setHelpOpen] = useState(false);
 
   const t = translations[lang];
@@ -426,15 +442,86 @@ export default function KMapApp() {
             </div>
           </div>
 
-          {/* Map Area */}
+          {/* Work Area */}
           <div className="flex flex-col items-center justify-center min-h-[400px] mb-8">
-            <KmapGrid
-              variables={numVars}
-              minterms={gridSets.minterms}
-              dontCares={gridSets.dontCares}
-              groups={result?.essentials}
-              onCellToggle={(index) => toggleCell(index)}
-            />
+            <div className="w-full max-w-5xl">
+              <div className="mx-auto mb-6 w-full max-w-xl">
+                <div className="relative grid grid-cols-2 rounded-2xl border border-border/60 bg-gradient-to-b from-background/80 to-muted/40 p-1.5 shadow-sm">
+                  <motion.div
+                    layout
+                    transition={{ type: "spring", stiffness: 320, damping: 32 }}
+                    className={[
+                      "absolute top-1.5 bottom-1.5 w-[calc(50%-0.375rem)] rounded-xl",
+                      "bg-primary shadow-[0_8px_20px_-10px_hsl(var(--primary))]",
+                      activePane === "kmap" ? "left-1.5" : "left-[calc(50%+0.125rem)]",
+                    ].join(" ")}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setActivePane("kmap")}
+                    className={[
+                      "relative z-10 h-10 rounded-xl text-sm font-semibold transition-colors",
+                      activePane === "kmap"
+                        ? "text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground",
+                    ].join(" ")}
+                  >
+                    {t.kmapTab}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActivePane("truth")}
+                    className={[
+                      "relative z-10 h-10 rounded-xl text-sm font-semibold transition-colors",
+                      activePane === "truth"
+                        ? "text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground",
+                    ].join(" ")}
+                  >
+                    {t.truthTab}
+                  </button>
+                </div>
+              </div>
+
+              <AnimatePresence mode="wait">
+                {activePane === "kmap" ? (
+                  <motion.div
+                    key="kmap-pane"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.18 }}
+                  >
+                    <KmapGrid
+                      variables={numVars}
+                      minterms={gridSets.minterms}
+                      dontCares={gridSets.dontCares}
+                      groups={result?.essentials}
+                      onCellToggle={(index) => toggleCell(index)}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="truth-pane"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.18 }}
+                    className="flex justify-center"
+                  >
+                    <TruthTablePane
+                      variables={numVars}
+                      minterms={gridSets.minterms}
+                      dontCares={gridSets.dontCares}
+                      onToggle={(index) => toggleCell(index)}
+                      lang={lang}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           <div className="flex justify-center gap-8 text-xs text-muted-foreground mb-6">
@@ -471,15 +558,6 @@ export default function KMapApp() {
               {t.clear}
             </Button>
 
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setTTOpen(true)}
-              className="min-w-[180px] transition-all duration-200 hover:bg-muted/60 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
-            >
-              {lang === "it" ? "Tabella di verità" : "Truth table"}
-            </Button>
-
           </div>
 
             {messageText && (
@@ -509,6 +587,13 @@ export default function KMapApp() {
                       tex={`f(\\mathbf{x}) = ${formatExpressionForMathJax(result.expression)}`}
                     />
                   </div>
+
+                  <LogicCircuitDiagram
+                    expression={result.expression}
+                    variables={result.meta.variables}
+                    isSop={result.meta.isSop}
+                    lang={lang}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -516,23 +601,6 @@ export default function KMapApp() {
         </CardContent>
         </Card>
       </div>
-      <TruthTableModal
-        open={ttOpen}
-        onClose={() => setTTOpen(false)}
-        variables={numVars}
-        minterms={gridSets.minterms}
-        dontCares={gridSets.dontCares}
-        lang={lang}
-        onApply={({ minterms, dontCares }) => {
-          // Rebuild the sparse grid map from truth table selections
-          const nextGrid: Record<number, string> = {};
-          for (const m of minterms) nextGrid[m] = "1";
-          for (const d of dontCares) nextGrid[d] = "-";
-          setGrid(nextGrid);
-          setResult(null);
-          setMessageKey(null);
-        }}
-      />
       <HelpModal
         open={helpOpen}
         onClose={() => setHelpOpen(false)}

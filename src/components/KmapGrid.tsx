@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { motion } from "framer-motion";
 import { KmapCell } from "./KmapCell";
 import { generateGrayCodes, getGridDimensions, getMintermIndex, getVariableLabels } from "../lib/kmap-utils";
@@ -71,7 +72,7 @@ export function KmapGrid({ variables, minterms, dontCares, groups, onCellToggle 
 
         {/* Rows */}
         {rowCodes.map((rowCode) => (
-          <>
+          <Fragment key={`row-wrap-${mapIndex}-${rowCode}`}>
             {/* Row Header */}
             <div key={`row-${rowCode}`} className="flex items-center justify-center font-mono text-sm text-muted-foreground font-medium px-3 border-r border-border/50 bg-muted/20">
               {rowCode}
@@ -97,7 +98,7 @@ export function KmapGrid({ variables, minterms, dontCares, groups, onCellToggle 
                 />
               );
             })}
-          </>
+          </Fragment>
         ))}
       </div>
     </div>
