@@ -1,3 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200"><rect width="200" height="200" fill="url('#gradient')"></rect><defs><linearGradient id="gradient" gradientTransform="rotate(0 0.5 0.5)"><stop offset="0%" stop-color="#ba5cdb"></stop><stop offset="100%" stop-color="#e1d7c8"></stop></linearGradient></defs><g><g fill="#0b0a0c" transform="matrix(7.454945054945055,0,0,7.454945054945055,47.55332740243975,153.0040352024875)" stroke="#565547" stroke-width="0"><path d="M8.94 0L5.91-5.29L4.50-3.75L4.50 0L1.07 0L1.07-14.22L4.50-14.22L4.50-7.95L5.69-9.76L8.76-14.22L13.00-14.22L8.19-7.93L13.00 0L8.94 0Z"></path></g></g></svg></svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
-@media (prefers-color-scheme: dark) { :root { filter: none; } }
-</style></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <linearGradient id="g" x1="36" y1="28" x2="220" y2="228" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#4F46E5"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="20" y="20" width="216" height="216" rx="52" fill="url(#g)"/>
+  <rect x="20" y="20" width="216" height="216" rx="52" stroke="#A5B4FC" stroke-width="6"/>
+
+  <!-- Bold K optimized for tiny tab favicon readability -->
+  <path d="M86 64V192" stroke="#F8FAFC" stroke-width="24" stroke-linecap="round"/>
+  <path d="M86 132L170 72" stroke="#F8FAFC" stroke-width="24" stroke-linecap="round"/>
+  <path d="M86 132L170 192" stroke="#F8FAFC" stroke-width="24" stroke-linecap="round"/>
+
+  <!-- Subtle node hint to keep logic identity -->
+  <circle cx="178" cy="132" r="10" fill="#F43F5E" stroke="#F8FAFC" stroke-width="4"/>
+</svg>

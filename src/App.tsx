@@ -227,7 +227,6 @@ export default function KMapApp() {
     setMessageKey(null);
   };
 
-
   const solve = async () => {
     setIsSolving(true);
     setMessageKey(null);
